@@ -4,7 +4,10 @@ import { apiClient } from "@/lib/api-client";
 import type { Platform } from "@/types";
 
 export function useMetrics(platform: Platform) {
-  const { dateRange } = useFilters();
+  const filters = useFilters();
+  const dateRange = filters.from && filters.to ? { from: filters.from, to: filters.to } : null;
+
+  if (!dateRange) return useQuery({ queryKey: [], queryFn: async () => null });
 
   const fromStr = dateRange.from.toISOString().split("T")[0];
   const toStr   = dateRange.to.toISOString().split("T")[0];

@@ -2,18 +2,24 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MetricCard } from "@/features/analytics/components/MetricCard";
 import { mockMetrics } from "@/lib/mock-data";
+import { useFilters } from "@/store/filters";
 import type { DashboardSummary, Metric, Platform } from "@/types";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
-const useMetricsDirect = (platform: Platform) => {
+const useMetricsDirect = (platform: Platform, days: number) => {
   return useQuery({
-    queryKey: ["metrics", platform],
+    queryKey: ["metrics", platform, days],
     queryFn: async (): Promise<Metric[]> => {
       await new Promise((r) => setTimeout(r, 300));
-      return mockMetrics.filter((m) => m.platform === platform);
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      cutoff.setHours(0, 0, 0, 0);
+      return mockMetrics.filter((m) => {
+        return m.platform === platform && new Date(m.date) >= cutoff;
+      });
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -45,8 +51,9 @@ const buildSummary = (
 };
 
 export const DashboardPage = () => {
-  const youtube = useMetricsDirect("youtube");
-  const tiktok  = useMetricsDirect("tiktok");
+  const { days } = useFilters();
+  const youtube  = useMetricsDirect("youtube", days);
+  const tiktok   = useMetricsDirect("tiktok",  days);
 
   const chartData = useMemo(() => {
     if (!youtube.data || !tiktok.data) return [];
@@ -77,7 +84,12 @@ export const DashboardPage = () => {
       </div>
 
       <div className="bg-white border border-gray-100 rounded-2xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800 mb-4">Vistas por día</h2>
+        <h2 className="text-sm font-semibold text-gray-800 mb-4">
+          Vistas por día
+          <span className="ml-2 text-xs font-normal text-gray-400">
+            últimos {days} días
+          </span>
+        </h2>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />

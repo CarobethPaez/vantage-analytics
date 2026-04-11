@@ -12,15 +12,7 @@ interface Props {
 }
 
 export const Header = ({ title, description }: Props) => {
-  const { setDateRange } = useFilters();
-
-  const handleRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const days = Number(e.target.value);
-    setDateRange({
-      from: new Date(Date.now() - days * 24 * 60 * 60 * 1000),
-      to: new Date(),
-    });
-  };
+  const { days, setDays } = useFilters();
 
   return (
     <header className="h-14 border-b border-gray-100 bg-white flex items-center px-6 gap-4 shrink-0">
@@ -33,8 +25,8 @@ export const Header = ({ title, description }: Props) => {
 
       <div className="flex items-center gap-2">
         <select
-          onChange={handleRangeChange}
-          defaultValue={30}
+          value={days}
+          onChange={(e) => setDays(Number(e.target.value))}
           className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {ranges.map((r) => (
