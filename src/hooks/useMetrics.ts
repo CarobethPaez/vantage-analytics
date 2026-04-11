@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Platform, DateRange } from "@/types";
+import { useFilters } from "@/store/filters";
 import { apiClient } from "@/lib/api-client";
+import type { Platform } from "@/types";
 
-export function useMetrics(platform: Platform, range: DateRange) {
+export function useMetrics(platform: Platform) {
+  const { dateRange } = useFilters();
+
   return useQuery({
-    queryKey: ["metrics", platform, range.from, range.to],
-    queryFn: () => apiClient.getMetrics(platform, range),
-    staleTime: 1000 * 60 * 5, // 5 minutos de cache
+    queryKey: ["metrics", platform, dateRange.from, dateRange.to],
+    queryFn: () => apiClient.getMetrics(platform, dateRange),
+    staleTime: 1000 * 60 * 5,
   });
 }

@@ -4,9 +4,12 @@ const generateMetrics = (
   platform: "youtube" | "tiktok",
   days: number
 ): Metric[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   return Array.from({ length: days }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (days - i));
+    const date = new Date(today);
+    date.setDate(today.getDate() - (days - 1 - i));
     const base = platform === "youtube" ? 8000 : 15000;
 
     return {
@@ -20,7 +23,8 @@ const generateMetrics = (
   });
 };
 
+// Generamos 90 días para cubrir todos los rangos del selector
 export const mockMetrics: Metric[] = [
-  ...generateMetrics("youtube", 30),
-  ...generateMetrics("tiktok", 30),
+  ...generateMetrics("youtube", 90),
+  ...generateMetrics("tiktok", 90),
 ];

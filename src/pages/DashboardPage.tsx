@@ -7,11 +7,6 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
-const range = {
-  from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-  to: new Date(),
-};
-
 const buildSummary = (
   platform: Platform,
   data: { views: number; followers: number; engagement: number }[] | undefined
@@ -23,7 +18,7 @@ const buildSummary = (
   const totalFollowers = data[data.length - 1].followers;
   const avgEngagement = data.reduce((s, m) => s + m.engagement, 0) / data.length;
   const half = Math.floor(data.length / 2);
-  const firstHalf = data.slice(0, half).reduce((s, m) => s + m.views, 0);
+  const firstHalf  = data.slice(0, half).reduce((s, m) => s + m.views, 0);
   const secondHalf = data.slice(half).reduce((s, m) => s + m.views, 0);
   const trendPercent = firstHalf > 0 ? ((secondHalf - firstHalf) / firstHalf) * 100 : 0;
 
@@ -38,8 +33,9 @@ const buildSummary = (
 };
 
 export const DashboardPage = () => {
-  const youtube = useMetrics("youtube", range);
-  const tiktok  = useMetrics("tiktok",  range);
+  const dateRange = { from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() };
+  const youtube = useMetrics("youtube", dateRange);
+  const tiktok  = useMetrics("tiktok", dateRange);
 
   const chartData = useMemo(() => {
     if (!youtube.data || !tiktok.data) return [];
@@ -70,9 +66,7 @@ export const DashboardPage = () => {
       </div>
 
       <div className="bg-white border border-gray-100 rounded-2xl p-5">
-        <h2 className="text-sm font-semibold text-gray-800 mb-4">
-          Vistas por día
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-800 mb-4">Vistas por día</h2>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -80,20 +74,8 @@ export const DashboardPage = () => {
             <YAxis tick={{ fontSize: 11 }} stroke="#e5e7eb" />
             <Tooltip />
             <Legend />
-            <Line
-              type="monotone"
-              dataKey="YouTube"
-              stroke="#4f46e5"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="TikTok"
-              stroke="#10b981"
-              strokeWidth={2}
-              dot={false}
-            />
+            <Line type="monotone" dataKey="YouTube" stroke="#4f46e5" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="TikTok"  stroke="#10b981" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
