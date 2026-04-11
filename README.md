@@ -80,17 +80,6 @@ pnpm dev
 # Build de producción
 pnpm build
 
-
-### Variables de entorno
-
-Crea un archivo `.env` en la raíz:
-
-env
-# Usar datos mock (default: true)
-# Cambiar a "false" cuando conectes APIs reales
-VITE_USE_MOCK=true
-
-
 ---
 
 ## Roadmap
