@@ -15,8 +15,7 @@
 
 ## Vista previa
 
-<!-- Agrega un screenshot aquí cuando tengas el deploy -->
-![Dashboard preview](./public/preview.png)
+![alt text](vantage-analytics.png)
 
 ---
 
