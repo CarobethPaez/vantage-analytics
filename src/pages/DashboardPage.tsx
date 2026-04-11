@@ -1,26 +1,38 @@
 import { useMemo } from "react";
-import { useMetrics } from "@/features/analytics/hooks/useMetrics";
+import { useQuery } from "@tanstack/react-query";
 import { MetricCard } from "@/features/analytics/components/MetricCard";
-import type { DashboardSummary, Platform } from "@/types";
+import { mockMetrics } from "@/lib/mock-data";
+import type { DashboardSummary, Metric, Platform } from "@/types";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 
+const useMetricsDirect = (platform: Platform) => {
+  return useQuery({
+    queryKey: ["metrics", platform],
+    queryFn: async (): Promise<Metric[]> => {
+      await new Promise((r) => setTimeout(r, 300));
+      return mockMetrics.filter((m) => m.platform === platform);
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
 const buildSummary = (
   platform: Platform,
-  data: { views: number; followers: number; engagement: number }[] | undefined
+  data: Metric[] | undefined
 ): DashboardSummary => {
   if (!data || data.length === 0) {
     return { platform, totalViews: 0, totalFollowers: 0, avgEngagement: 0, trend: "neutral", trendPercent: 0 };
   }
-  const totalViews = data.reduce((s, m) => s + m.views, 0);
+  const totalViews     = data.reduce((s, m) => s + m.views, 0);
   const totalFollowers = data[data.length - 1].followers;
-  const avgEngagement = data.reduce((s, m) => s + m.engagement, 0) / data.length;
-  const half = Math.floor(data.length / 2);
-  const firstHalf  = data.slice(0, half).reduce((s, m) => s + m.views, 0);
-  const secondHalf = data.slice(half).reduce((s, m) => s + m.views, 0);
-  const trendPercent = firstHalf > 0 ? ((secondHalf - firstHalf) / firstHalf) * 100 : 0;
+  const avgEngagement  = data.reduce((s, m) => s + m.engagement, 0) / data.length;
+  const half           = Math.floor(data.length / 2);
+  const firstHalf      = data.slice(0, half).reduce((s, m) => s + m.views, 0);
+  const secondHalf     = data.slice(half).reduce((s, m) => s + m.views, 0);
+  const trendPercent   = firstHalf > 0 ? ((secondHalf - firstHalf) / firstHalf) * 100 : 0;
 
   return {
     platform,
@@ -33,9 +45,8 @@ const buildSummary = (
 };
 
 export const DashboardPage = () => {
-  const dateRange = { from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() };
-  const youtube = useMetrics("youtube", dateRange);
-  const tiktok  = useMetrics("tiktok", dateRange);
+  const youtube = useMetricsDirect("youtube");
+  const tiktok  = useMetricsDirect("tiktok");
 
   const chartData = useMemo(() => {
     if (!youtube.data || !tiktok.data) return [];
