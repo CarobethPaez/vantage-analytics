@@ -1,73 +1,111 @@
-# React + TypeScript + Vite
+# Vantage Analytics
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Dashboard de analytics para creadores de contenido — unifica métricas de YouTube y TikTok en un solo lugar.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19-%2361DAFB?style=flat-square&logo=react&logoColor=white&labelColor=%2320232a)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-%233178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=%23007ACC)
+![Vite](https://img.shields.io/badge/Vite-8.x-%23646CFF?style=flat-square&logo=vite&logoColor=white&labelColor=%23242424)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-4.x-%2306B6D4?style=flat-square&logo=tailwindcss&logoColor=white&labelColor=%230f172a)
+![React Query](https://img.shields.io/badge/React_Query-5.x-%23FF4154?style=flat-square&logo=reactquery&logoColor=white&labelColor=%231a1a2e)
+![Recharts](https://img.shields.io/badge/Recharts-2.x-%2322b5bf?style=flat-square)
+![Zustand](https://img.shields.io/badge/Zustand-5.x-%23433e38?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Vista previa
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+<!-- Agrega un screenshot aquí cuando tengas el deploy -->
+![Dashboard preview](./public/preview.png)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 📊 &nbsp;Dashboard unificado para YouTube y TikTok
+- 📈 &nbsp;Gráfica de vistas por día con Recharts
+- 🃏 &nbsp;Tarjetas de métricas con tendencia y engagement
+- ⚡ &nbsp;Caché inteligente con React Query (5 min staleTime)
+- 🔌 &nbsp;API client con switch mock/real vía variable de entorno
+- 🏗️ &nbsp;Arquitectura feature-first escalable
+- 🌙 &nbsp;Preparado para modo oscuro
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Stack técnico
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Categoría | Tecnología |
+|-----------|-----------|
+| Framework | React 19 + TypeScript |
+| Build tool | Vite 8 |
+| Estilos | Tailwind CSS 4 |
+| Estado servidor | TanStack React Query |
+| Estado cliente | Zustand |
+| Gráficas | Recharts |
+| Routing | React Router v7 |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Estructura del proyecto
+src/
+├── features/
+│   ├── analytics/
+│   │   ├── components/    # MetricCard, etc.
+│   │   └── hooks/         # useMetrics
+│   ├── platforms/
+│   ├── reports/
+│   └── auth/
+├── components/
+│   ├── ui/                # componentes genéricos
+│   ├── charts/            # wrappers de Recharts
+│   └── layout/            # Sidebar, Header, AppLayout
+├── lib/
+│   ├── api-client.ts      # fetch con switch mock/real
+│   └── mock-data.ts       # datos generados
+├── store/                 # Zustand slices
+├── hooks/                 # hooks globales
+├── types/                 # tipos TypeScript
+└── router/                # definición de rutas
+
+---
+
+## Correr el proyecto
+
+
+# Instalar dependencias
+pnpm install
+
+# Servidor de desarrollo
+pnpm dev
+
+# Build de producción
+pnpm build
+
+
+### Variables de entorno
+
+Crea un archivo `.env` en la raíz:
+
+env
+# Usar datos mock (default: true)
+# Cambiar a "false" cuando conectes APIs reales
+VITE_USE_MOCK=true
+
+
+---
+
+## Roadmap
+
+- [ ] Selector de rango de fechas
+- [ ] Página de reportes con export PDF
+- [ ] Integración real con YouTube Data API
+- [ ] Integración real con TikTok API
+- [ ] Modo oscuro
+- [ ] Autenticación con Clerk
+- [ ] Plan de agencia con múltiples cuentas
+
+---
+
+## Autor
+
+Hecho con ❤️ por **[Carolina Páez](https://github.com/CarobethPaez)**
