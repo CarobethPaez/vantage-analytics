@@ -110,5 +110,5 @@ VITE_USE_MOCK=true
 
 ## Autor
 
-Hecho con ❤️ por **[Carolina Páez](https://github.com/CarobethPaez)**
+Hecho con ❤️ por **[Carolina Páez] https://github.com/CarobethPaez **
 
