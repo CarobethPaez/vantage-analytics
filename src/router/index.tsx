@@ -1,9 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { DashboardPage } from "@/pages/DashboardPage";
-
-const ReportsPage  = () => <div className="text-gray-400 text-sm">Reportes próximamente</div>;
-const SettingsPage = () => <div className="text-gray-400 text-sm">Ajustes próximamente</div>;
+import { DashboardPage }  from "@/pages/DashboardPage";
+import { ReportsPage }    from "@/pages/ReportsPage";
+import { SettingsPage }   from "@/pages/SettingsPage";
 
 export const router = createBrowserRouter([
   {

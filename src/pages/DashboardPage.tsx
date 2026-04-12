@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { mockMetrics } from "@/lib/mock-data";
 import { useFilters } from "@/store/filters";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import type { Metric, Platform, DashboardSummary } from "@/types";
 import {
   LineChart, Line, BarChart, Bar,
@@ -13,7 +16,7 @@ const useMetricsDirect = (platform: Platform, days: number) =>
   useQuery({
     queryKey: ["metrics", platform, days],
     queryFn: async (): Promise<Metric[]> => {
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 600));
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
       cutoff.setHours(0, 0, 0, 0);
@@ -82,112 +85,152 @@ export const DashboardPage = () => {
 
   const totalViews     = yt.totalViews + tt.totalViews;
   const totalFollowers = yt.totalFollowers + tt.totalFollowers;
-  const avgEngagement  = ((yt.avgEngagement + tt.avgEngagement) / 2);
+  const avgEngagement  = (yt.avgEngagement + tt.avgEngagement) / 2;
   const totalLikes     = [
     ...(youtube.data ?? []),
     ...(tiktok.data  ?? []),
   ].reduce((s, m) => s + m.likes, 0);
 
-  if (youtube.isLoading || tiktok.isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p style={{ color: "var(--text-muted)" }} className="text-sm">
-          Cargando métricas...
-        </p>
-      </div>
-    );
-  }
+  const isLoading = youtube.isLoading || tiktok.isLoading;
+
+  const kpis = [
+    { label: "Vistas totales", value: totalViews,     suffix: "K",  divisor: 1000, trend: "+8.2%",  up: true  },
+    { label: "Seguidores",     value: totalFollowers, suffix: "K",  divisor: 1000, trend: "+3.1%",  up: true  },
+    { label: "Engagement",     value: avgEngagement,  suffix: "%",  divisor: 1,    trend: "-0.4%",  up: false },
+    { label: "Likes totales",  value: totalLikes,     suffix: "K",  divisor: 1000, trend: "+12.7%", up: true  },
+  ];
 
   return (
     <div className="space-y-4">
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "Vistas totales",  value: `${(totalViews / 1000).toFixed(1)}K`,     trend: "+8.2%",  up: true  },
-          { label: "Seguidores",      value: `${(totalFollowers / 1000).toFixed(1)}K`, trend: "+3.1%",  up: true  },
-          { label: "Engagement",      value: `${avgEngagement.toFixed(2)}%`,            trend: "-0.4%",  up: false },
-          { label: "Likes totales",   value: `${(totalLikes / 1000).toFixed(1)}K`,     trend: "+12.7%", up: true  },
-        ].map(({ label, value, trend, up }) => (
-          <div key={label} style={card}>
-            <p style={{ color: "var(--text-muted)", fontSize: 11, marginBottom: 4 }}>{label}</p>
-            <p style={{ color: "var(--text-primary)", fontSize: 22, fontWeight: 600 }}>{value}</p>
-            <p style={{ color: up ? "#4ade80" : "#f87171", fontSize: 11, marginTop: 3 }}>
-              {up ? "↑" : "↓"} {trend}
-            </p>
-          </div>
-        ))}
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+          : kpis.map(({ label, value, suffix, divisor, trend, up }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.07 }}
+                style={card}
+              >
+                <p style={{ color: "var(--text-muted)", fontSize: 11, marginBottom: 4 }}>{label}</p>
+                <p style={{ color: "var(--text-primary)", fontSize: 22, fontWeight: 600 }}>
+                  <AnimatedNumber
+                    value={parseFloat((value / divisor).toFixed(suffix === "%" ? 2 : 1))}
+                    duration={800}
+                    formatter={(n) =>
+                      suffix === "%" ? `${n.toFixed(2)}%` : `${n.toFixed(1)}${suffix}`
+                    }
+                  />
+                </p>
+                <p style={{ color: up ? "#4ade80" : "#f87171", fontSize: 11, marginTop: 3 }}>
+                  {up ? "↑" : "↓"} {trend}
+                </p>
+              </motion.div>
+            ))
+        }
       </div>
 
       {/* Gráficas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-        <div style={{ ...card, gridColumn: "span 2" }}>
-          <p style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 500, marginBottom: 12 }}>
-            Vistas por día
-            <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 6 }}>
-              últimos {days} días
-            </span>
-          </p>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,130,255,0.1)" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
-              <YAxis tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
-              <Tooltip {...tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: 11, color: "#4a5a8a" }} />
-              <Line type="monotone" dataKey="YouTube" stroke="#6382ff" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="TikTok"  stroke="#4ade80" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div style={{ gridColumn: "span 2" }}><SkeletonCard /></div>
+          <SkeletonCard />
         </div>
+      ) : (
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-3 gap-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <div style={{ ...card, gridColumn: "span 2" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 500, marginBottom: 12 }}>
+              Vistas por día
+              <span style={{ color: "var(--text-muted)", fontWeight: 400, marginLeft: 6 }}>
+                últimos {days} días
+              </span>
+            </p>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,130,255,0.1)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
+                <YAxis tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
+                <Tooltip {...tooltipStyle} />
+                <Legend wrapperStyle={{ fontSize: 11, color: "#4a5a8a" }} />
+                <Line type="monotone" dataKey="YouTube" stroke="#6382ff" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="TikTok"  stroke="#4ade80" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-        <div style={card}>
-          <p style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 500, marginBottom: 12 }}>
-            Likes por día
-          </p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={barData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,130,255,0.1)" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
-              <YAxis tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
-              <Tooltip {...tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: 11, color: "#4a5a8a" }} />
-              <Bar dataKey="YouTube" fill="#6382ff" opacity={0.85} radius={[3, 3, 0, 0]} />
-              <Bar dataKey="TikTok"  fill="#4ade80" opacity={0.85} radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+          <div style={card}>
+            <p style={{ color: "var(--text-secondary)", fontSize: 12, fontWeight: 500, marginBottom: 12 }}>
+              Likes por día
+            </p>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={barData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,130,255,0.1)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
+                <YAxis tick={{ fontSize: 10, fill: "#4a5a8a" }} stroke="transparent" />
+                <Tooltip {...tooltipStyle} />
+                <Legend wrapperStyle={{ fontSize: 11, color: "#4a5a8a" }} />
+                <Bar dataKey="YouTube" fill="#6382ff" opacity={0.85} radius={[3, 3, 0, 0]} />
+                <Bar dataKey="TikTok"  fill="#4ade80" opacity={0.85} radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      )}
 
       {/* Platform cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {[
-          { summary: yt, badge: "YouTube", badgeBg: "rgba(248,113,113,0.15)", badgeColor: "#f87171", badgeBorder: "rgba(248,113,113,0.3)" },
-          { summary: tt, badge: "TikTok",  badgeBg: "rgba(74,222,128,0.15)",  badgeColor: "#4ade80", badgeBorder: "rgba(74,222,128,0.3)"  },
-        ].map(({ summary, badge, badgeBg, badgeColor, badgeBorder }) => (
-          <div key={badge} style={card}>
-            <span style={{ background: badgeBg, color: badgeColor, border: `0.5px solid ${badgeBorder}`, fontSize: 10, fontWeight: 500, padding: "2px 8px", borderRadius: 20, display: "inline-block", marginBottom: 10 }}>
-              {badge}
-            </span>
-            <div className="space-y-2">
-              {[
-                { label: "Vistas totales",  value: `${(summary.totalViews / 1000).toFixed(1)}K`   },
-                { label: "Seguidores",      value: `${(summary.totalFollowers / 1000).toFixed(1)}K` },
-                { label: "Engagement",      value: `${summary.avgEngagement.toFixed(2)}%`           },
-                { label: "Tendencia",       value: `${summary.trend === "up" ? "↑" : "↓"} ${summary.trendPercent.toFixed(1)}%`, isUp: summary.trend === "up" },
-              ].map(({ label, value, isUp }) => (
-                <div key={label} className="flex justify-between">
-                  <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{label}</span>
-                  <span style={{ color: isUp !== undefined ? (isUp ? "#4ade80" : "#f87171") : "var(--text-secondary)", fontSize: 12, fontWeight: 500 }}>
-                    {value}
-                  </span>
-                </div>
-              ))}
+      {!isLoading && (
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.45 }}
+        >
+          {[
+            { summary: yt, badge: "YouTube", badgeBg: "rgba(248,113,113,0.15)", badgeColor: "#f87171", badgeBorder: "rgba(248,113,113,0.3)" },
+            { summary: tt, badge: "TikTok",  badgeBg: "rgba(74,222,128,0.15)",  badgeColor: "#4ade80", badgeBorder: "rgba(74,222,128,0.3)"  },
+          ].map(({ summary, badge, badgeBg, badgeColor, badgeBorder }) => (
+            <div key={badge} style={card}>
+              <span style={{
+                background: badgeBg, color: badgeColor,
+                border: `0.5px solid ${badgeBorder}`,
+                fontSize: 10, fontWeight: 500,
+                padding: "2px 8px", borderRadius: 20,
+                display: "inline-block", marginBottom: 10,
+              }}>
+                {badge}
+              </span>
+              <div className="space-y-2">
+                {[
+                  { label: "Vistas totales",  value: `${(summary.totalViews / 1000).toFixed(1)}K`    },
+                  { label: "Seguidores",      value: `${(summary.totalFollowers / 1000).toFixed(1)}K` },
+                  { label: "Engagement",      value: `${summary.avgEngagement.toFixed(2)}%`            },
+                  { label: "Tendencia",       value: `${summary.trend === "up" ? "↑" : "↓"} ${summary.trendPercent.toFixed(1)}%`, isUp: summary.trend === "up" },
+                ].map(({ label, value, isUp }) => (
+                  <div key={label} className="flex justify-between">
+                    <span style={{ color: "var(--text-muted)", fontSize: 12 }}>{label}</span>
+                    <span style={{
+                      color: isUp !== undefined
+                        ? (isUp ? "#4ade80" : "#f87171")
+                        : "var(--text-secondary)",
+                      fontSize: 12, fontWeight: 500,
+                    }}>
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 };
