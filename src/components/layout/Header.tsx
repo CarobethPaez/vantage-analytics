@@ -15,11 +15,21 @@ export const Header = ({ title, description }: Props) => {
   const { days, setDays } = useFilters();
 
   return (
-    <header className="h-14 border-b border-gray-100 bg-white flex items-center px-6 gap-4 shrink-0">
+    <header
+      style={{
+        background: "rgba(255,255,255,0.02)",
+        borderBottom: "0.5px solid var(--border-nav)",
+      }}
+      className="h-14 flex items-center px-6 gap-4 shrink-0"
+    >
       <div className="flex-1 min-w-0">
-        <h1 className="text-sm font-semibold text-gray-900 truncate">{title}</h1>
+        <h1 style={{ color: "var(--text-primary)" }} className="text-sm font-semibold truncate">
+          {title}
+        </h1>
         {description && (
-          <p className="text-xs text-gray-400 truncate">{description}</p>
+          <p style={{ color: "var(--text-muted)" }} className="text-xs truncate">
+            {description}
+          </p>
         )}
       </div>
 
@@ -27,15 +37,27 @@ export const Header = ({ title, description }: Props) => {
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          style={{
+            background: "rgba(99,130,255,0.1)",
+            border: "0.5px solid rgba(99,130,255,0.3)",
+            color: "#a0b4ff",
+          }}
+          className="text-xs rounded-lg px-2.5 py-1.5 focus:outline-none"
         >
           {ranges.map((r) => (
-            <option key={r.days} value={r.days}>
+            <option key={r.days} value={r.days} style={{ background: "#0d1425" }}>
               {r.label}
             </option>
           ))}
         </select>
-        <button className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg transition-colors">
+
+        <button
+          style={{
+            background: "linear-gradient(135deg, #4a6fff, #6a3fff)",
+            border: "none",
+          }}
+          className="text-xs text-white px-3 py-1.5 rounded-lg transition-opacity hover:opacity-90"
+        >
           Exportar PDF
         </button>
       </div>
