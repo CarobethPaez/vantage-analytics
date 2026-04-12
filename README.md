@@ -15,7 +15,9 @@
 
 ## Vista previa
 
-![alt text](vantage-analytics.png)
+![Dashboard preview](vantage-analytics1.png))
+![Reportes preview](vantage-analytics2.png)
+![Ajustes preview](vantage-analytics3.png)
 
 ---
 
@@ -46,6 +48,7 @@
 ---
 
 ## Estructura del proyecto
+
 src/
 ├── features/
 │   ├── analytics/
@@ -70,7 +73,7 @@ src/
 
 ## Correr el proyecto
 
-
+```bash
 # Instalar dependencias
 pnpm install
 
@@ -79,6 +82,17 @@ pnpm dev
 
 # Build de producción
 pnpm build
+```
+
+### Variables de entorno
+
+Crea un archivo `.env` en la raíz:
+
+```env
+# Usar datos mock (default: true)
+# Cambiar a "false" cuando conectes APIs reales
+VITE_USE_MOCK=true
+```
 
 ---
 
@@ -97,3 +111,4 @@ pnpm build
 ## Autor
 
 Hecho con ❤️ por **[Carolina Páez](https://github.com/CarobethPaez)**
+
