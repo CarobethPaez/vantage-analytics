@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { motion, easeOut } from "framer-motion";
 
@@ -52,6 +53,15 @@ const plans = [
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+
+const handleCTA = () => {
+  if (isSignedIn) {
+    navigate("/app");
+  } else {
+    navigate("/sign-in");
+  }
+};
 
   const navStyle: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -87,7 +97,7 @@ export const LandingPage = () => {
             <span key={l} style={{ fontSize: 13, color: "#4a5a8a", cursor: "pointer" }}>{l}</span>
           ))}
         </div>
-        <button style={btnPrimary} onClick={() => navigate("/app")}>
+        <button style={btnPrimary} onClick={handleCTA}>
           Empezar gratis
         </button>
       </nav>
@@ -110,8 +120,12 @@ export const LandingPage = () => {
         </motion.p>
 
         <motion.div {...fadeUp(0.3)} style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 48 }}>
-          <button style={btnPrimary} onClick={() => navigate("/app")}>Empezar gratis</button>
-          <button style={btnGhost}   onClick={() => navigate("/app")}>Ver demo</button>
+          <button style={btnPrimary} onClick={handleCTA}>
+            Empezar gratis
+          </button>
+          <button style={btnGhost} onClick={() => navigate("/app")}>
+            Ver demo
+          </button>
         </motion.div>
 
         {/* Dashboard preview */}
@@ -231,7 +245,9 @@ export const LandingPage = () => {
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
           <h2 style={{ fontSize: 32, fontWeight: 700, color: "#e8eeff", marginBottom: 12 }}>Empieza a crecer hoy</h2>
           <p style={{ fontSize: 15, color: "#4a5a8a", marginBottom: 28 }}>Gratis para siempre. Sin tarjeta de crédito.</p>
-          <button style={btnPrimary} onClick={() => navigate("/app")}>Crear cuenta gratis</button>
+          <button style={btnPrimary} onClick={handleCTA}>
+            Crear cuenta gratis
+          </button>
         </motion.div>
       </div>
 

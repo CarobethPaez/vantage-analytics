@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { ProtectedRoute } from "./ProtectedRoute";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 export const AppLayout = () => {
@@ -10,18 +11,20 @@ export const AppLayout = () => {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header title={title} description={description} />
-        <main className="flex-1 overflow-y-auto p-6">
-          <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname}>
-              <Outlet />
-            </PageTransition>
-          </AnimatePresence>
-        </main>
+    <ProtectedRoute>
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Header title={title} description={description} />
+          <main className="flex-1 overflow-y-auto p-6">
+            <AnimatePresence mode="wait">
+              <PageTransition key={location.pathname}>
+                <Outlet />
+              </PageTransition>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 };
